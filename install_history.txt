@@ -1,0 +1,23 @@
+    1  export LC_ALL=C # in case you get error when creating the virtualenv
+    2  #For python3
+    3  virtualenv -p /usr/bin/python3 venv
+    4  #For python2
+    5  virtualenv -p /usr/bin/python2 venvsource venv/bin/activate
+    6  source venv/bin/activate
+    7  virtualenv -p /usr/bin/python2 venv
+    8  source venv/bin/activate
+    9  pip install flask requests python-dateutil python-slugify python2redmine
+   10  sudo pip install flask requests python-dateutil python-slugify python2redmine
+   11  pip install flask requests python-dateutil python-slugify python2redmine
+   12  pip install --user flask requests python-dateutil python-slugify python2redmine
+   13  touch pyvenv.cfg
+   14  pip install  --system-site-packages flask requests python-dateutil python-slugify python2redmine
+   15  pip install flask requests python-dateutil python-slugify python2redmine
+   16  pip install --user flask requests python-dateutil python-slugify python2redmine
+   17  virtualenv -p /usr/bin/python2 venv
+   18  pip install flask requests python-dateutil python-slugify python2redmine
+   19  pip install flask requests python-dateutil python-slugify
+   20  cd flask_app
+   21  python flask_app.py
+   22  history 
+   23  history > ../install_history.txt

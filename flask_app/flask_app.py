@@ -10,13 +10,13 @@ import calendar
 import logging
 import requests
 import traceback
-import notifications
+#import notifications
 from datetime import datetime
 from itertools import chain
 from collections import defaultdict
 
-# from gitlab import GitlabConnector
-from redmine import RedmineConnector
+from gitlab import GitlabConnector
+# from redmine import RedmineConnector
 from ocp import OCPConnector
 from utils import get_fixed_incomes, get_fixed_budget, FAIR2EUR_PRICE
 import distribution
@@ -39,7 +39,7 @@ except Exception:
 
 
 app.add_url_rule('/calculate/', 'calculate', distribution.calculate, methods=['POST'])
-app.add_url_rule('/recent.atom', 'generate_feed', notifications.generate_feed)
+#app.add_url_rule('/recent.atom', 'generate_feed', notifications.generate_feed)
 
 app.all_users = defaultdict(dict)
 
@@ -85,9 +85,9 @@ def index():
     settings['fixed_income_users'] = get_fixed_incomes(month=month_param)
     settings['fixed_budget'] = get_fixed_budget(month=month_param)
     ocp_error_connection = False
-    # app.gitlab = GitlabConnector()
-    app.ocp = OCPConnector(app)
-    redmine = RedmineConnector()
+    app.gitlab = GitlabConnector()
+    #app.ocp = OCPConnector(app)
+    #redmine = RedmineConnector()
 
     cache_time_file = os.path.join('/tmp/', 'cache_time_' + month_param + '.p')
     cache_areas_file = os.path.join('/tmp/', 'cache_areas_' + month_param + '.p')
@@ -113,35 +113,36 @@ def index():
     if force_cache_refresh:
         logging.debug('reloading_contributions from API')
         redmine.get_server_users()
-        # app.gitlab.get_server_users()
+         app.gitlab.get_server_users()
         app.ocp.get_server_users()
         all_time_events = []
 
         for area in areas:
             area_name = area['name']
             logging.debug('Checking area: {0}'.format(area_name))
+            
             sum_contributions_redmine = []
-            for project_id in area.get('redmine', []):
-                contributions, redmine_users = redmine.get_issues(area_name, project_id, date_min, date_max)
-                for username, user in redmine_users.items():
-                    app.all_users[username].update(user)
-                sum_contributions_redmine += contributions
+            # for project_id in area.get('redmine', []):
+            #     contributions, redmine_users = redmine.get_issues(area_name, project_id, date_min, date_max)
+            #     for username, user in redmine_users.items():
+            #         app.all_users[username].update(user)
+            #     sum_contributions_redmine += contributions
 
-            all_time_events += sum_contributions_redmine
-            remunerated_work, voluntary_work = ocw_hours.filter_by_remuneration(sum_contributions_redmine)
-            remunerated_work = ocw_hours.validate_remunerations(remunerated_work)
-            contributions_redmine = []
-            for x in chain(remunerated_work.values(), voluntary_work.values()):
-                for w in x.values():
-                    contributions_redmine.append(w)
+            # all_time_events += sum_contributions_redmine
+            # remunerated_work, voluntary_work = ocw_hours.filter_by_remuneration(sum_contributions_redmine)
+            # remunerated_work = ocw_hours.validate_remunerations(remunerated_work)
+            # contributions_redmine = []
+            # for x in chain(remunerated_work.values(), voluntary_work.values()):
+            #     for w in x.values():
+            #         contributions_redmine.append(w)
 
             contributions_gitlab = []
-            # project_id = area.get('gitlab', None)
-            # if project_id:
-            #     issues = app.gitlab.get_issues(project_id=project_id)
-            #     contributions_gitlab, gitlab_users = app.gitlab.parse_issues(issues, project_id, date_min, date_max)
-            #     for username, user in gitlab_users.items():
-            #         app.all_users[username].update(user)
+            project_id = area.get('gitlab', None)
+            if project_id:
+                issues = app.gitlab.get_issues(project_id=project_id)
+                contributions_gitlab, gitlab_users = app.gitlab.parse_issues(issues, project_id, date_min, date_max)
+                for username, user in gitlab_users.items():
+                    app.all_users[username].update(user)
 
             sum_contributions_ocp = []
             for project_id in area.get('ocp', []):
@@ -216,7 +217,7 @@ def index():
         pickle.dump(all_time_events, open(cache_all_time_events_file, "wb"))
 
         pickle.dump(app.all_users, open(cache_kispagi_users, "wb"))
-        notifications.check_time_event_changes(new=all_time_events, old=all_time_events_cache)
+#        notifications.check_time_event_changes(new=all_time_events, old=all_time_events_cache)
     elif areas_cache:
         areas = areas_cache
 
